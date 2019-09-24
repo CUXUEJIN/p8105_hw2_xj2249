@@ -1,0 +1,55 @@
+---
+title: "p8105_hw2_xj2249"
+author: "jx"
+date: "2019/9/24"
+output: github_document
+---
+
+# Problem 1
+## Read and clean the Mr. Trash Wheel sheet
+```{r, message = FALSE}
+library(tidyverse)
+mr_trash <- readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+                               sheet = "Mr. Trash Wheel",
+                               range = "A2:N336") %>% 
+        janitor::clean_names() %>% 
+        drop_na(date) %>% 
+        mutate(sports_balls = as.integer(sports_balls))
+```
+
+## Read and clean precipitation data for 2017 and 2018
+```{r, message = FALSE}
+pre_18 <- readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+                             sheet = "2018 Precipitation",
+                             range = "A2:B14") %>% 
+        janitor::clean_names() %>% 
+        drop_na(total) %>% 
+        mutate(year = "2018")
+pre_17 <- readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+                             sheet = "2017 Precipitation",
+                             range = "A2:B14") %>% 
+        janitor::clean_names() %>% 
+        drop_na(total) %>% 
+        mutate(year = "2017")
+pre_17_18 <- rbind(pre_18,pre_17) %>% 
+        mutate(month = month.name[month])
+```
+
+
+Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. For available data, what was the total precipitation in 2018? What was the median number of sports balls in a dumpster in 2017?
+
+
+# Problem 2
+## Clean the data in pols-month
+```{r, message = FALSE}
+pols_month <- read_csv("./data/fivethirtyeight_datasets/pols-month.csv")
+
+
+
+```
+
+
+
+
+
+
