@@ -36,7 +36,14 @@ pre_17_18 <- rbind(pre_18,pre_17) %>%
 ```
 
 
-Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. For available data, what was the total precipitation in 2018? What was the median number of sports balls in a dumpster in 2017?
+Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. 
+
+For available data, what was the total precipitation in 2018? 
+
+
+What was the median number of sports balls in a dumpster in 2017?  done 
+
+The median number of sports balls in a dumpster in 2017 is  `r median(pull(filter(mr_trash,year == 2017),sports_balls))`
 
 
 # Problem 2
