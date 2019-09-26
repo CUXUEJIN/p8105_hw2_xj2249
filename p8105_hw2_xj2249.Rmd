@@ -63,7 +63,7 @@ snp <-
 ```
 
 ## Third, tidy the unemployment data 
-This process will involve switching from “wide” to “long” format; ensuring that key variables have the same name; and ensuring that key variables take the same values.
+This process will involve switching from ???wide??? to ???long??? format; ensuring that key variables have the same name; and ensuring that key variables take the same values.
 ```{r, message = FALSE}
 unemployment <- 
         read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>%
@@ -81,6 +81,8 @@ pol_snp_unemp <- left_join(pol_snp,unemployment,by = c("year", "month"))
 
 # Problem 3
 ```{r}
+baby_name <- read_csv("./data/Popular_Baby_Names.csv") 
+
 
 ```
 
