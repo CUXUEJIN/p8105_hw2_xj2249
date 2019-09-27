@@ -1,6 +1,6 @@
 ---
 title: "p8105_hw2_xj2249"
-author: "jx"
+author: "jx2249" 
 date: "2019/9/24"
 output: github_document
 ---
@@ -9,41 +9,61 @@ output: github_document
 ## Read and clean the Mr. Trash Wheel sheet
 ```{r, message = FALSE}
 library(tidyverse)
-mr_trash <- readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+mr_trash <- 
+        readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
                                sheet = "Mr. Trash Wheel",
                                range = "A2:N336") %>% 
         janitor::clean_names() %>% 
-        drop_na(date) %>% 
+        drop_na(dumpster) %>% 
         mutate(sports_balls = as.integer(sports_balls))
 ```
 
 ## Read and clean precipitation data for 2017 and 2018
 ```{r, message = FALSE}
-pre_18 <- readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+pct_18 <- 
+        readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
                              sheet = "2018 Precipitation",
                              range = "A2:B14") %>% 
         janitor::clean_names() %>% 
         drop_na(total) %>% 
         mutate(year = "2018")
-pre_17 <- readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+
+pct_17 <- 
+        readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
                              sheet = "2017 Precipitation",
                              range = "A2:B14") %>% 
         janitor::clean_names() %>% 
         drop_na(total) %>% 
         mutate(year = "2017")
-pre_17_18 <- rbind(pre_18,pre_17) %>% 
+
+pct_17_18 <- 
+        rbind(pct_18,pct_17) %>% 
         mutate(month = month.name[month])
 ```
 
 
-Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. 
+Write a paragraph about these data; you are encouraged to use inline R. 
 
-For available data, what was the total precipitation in 2018? 
+Be sure to note the number of observations in both resulting datasets, and give examples of key variables. 
 
 
 What was the median number of sports balls in a dumpster in 2017?  done 
 
 The median number of sports balls in a dumpster in 2017 is  `r median(pull(filter(mr_trash,year == 2017),sports_balls))`
+
+
+## Mr. Trash Wheel dataset
+In Mr. Trash Wheel dataset, there are '`r nrow(mr_trash)`' observations.
+
+
+In precipitation(2017-2018) dataset,  there are `r nrow(pct_17_18)` observations, with 3 variables, indicating
+the total precipitation data for 19 months in 2017 and 2018. 
+The total precipitation in 2017 and 2018 are `r sum(pull(filter(pct_17_18,year == 2017),total))` 
+and `r sum(pull(filter(pct_17_18,year == 2018),total))` respectively. Besides, the average precipitation in 2017 and 2018 are 
+`r round(mean(pull(filter(pct_17_18,year == 2017),total)), digits=2) ` 
+and `r round(mean(pull(filter(pct_17_18,year == 2018),total)), digits=2)` respectively.
+
+
 
 
 # Problem 2
@@ -86,6 +106,9 @@ pol_snp_unemp <- left_join(pol_snp,unemployment,by = c("year", "month"))
 ```
 
 
+Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
+
+
 # Problem 3
 ## Load and tidy the data
 ```{r}
@@ -95,24 +118,23 @@ baby_name <-
         mutate(childs_first_name = str_to_title(childs_first_name),
                ethnicity = str_to_sentence(recode(ethnicity, "ASIAN AND PACIFIC ISLANDER" = "ASIAN AND PACI",
                                                                 "BLACK NON HISPANIC" = "BLACK NON HISP",
-                                                                        "WHITE NON HISPANIC" = "WHITE NON HISP"))) %>% 
+                                                                        "WHITE NON HISPANIC" = "WHITE NON HISP")),
+               gender = str_to_title(gender)
+               ) %>% 
         distinct(.keep_all = TRUE) %>% 
         view()
-
 ```
 
 
 ## Creat table for "¡°Olivia¡±
 ```{r, message = FALSE}
-library(knitr)
 pop_olivia <- 
         baby_name %>% 
         filter(childs_first_name == "Olivia") %>% 
         select("year_of_birth","ethnicity","rank") %>% 
         pivot_wider(names_from = year_of_birth, values_from = rank ) %>% 
         select("ethnicity","2011","2012","2013","2014","2015","2016")
-
-kable(pop_olivia) 
+knitr::kable(pop_olivia) 
 
 
 # Finally, for male, white non-hispanic children born in 2016, produce a scatter plot showing the number of children with a name (y axis) against the rank in popularity of that name (x axis).
@@ -120,24 +142,31 @@ kable(pop_olivia)
 
 ```
 
+
+Finally, for male, white non-hispanic children born in 2016, produce a scatter plot showing the number of children with a name (y axis) against the rank in popularity of that name (x axis).
+
 ## The most popular name among male children over time.
 ```{r}
 pop_male_name <- 
         baby_name %>% 
-        filter(gender == "MALE" & rank == 1) %>% 
+        filter(gender == "Male" & rank == 1) %>% 
         select(year_of_birth, ethnicity, childs_first_name) %>% 
         pivot_wider(names_from = year_of_birth, values_from = childs_first_name ) %>% 
         select("ethnicity","2011","2012","2013","2014","2015","2016") 
-kable(pop_male_name)
+knitr::kable(pop_male_name) 
 ```
 
 ## A scatter plot 
-```{r}
+```{r, fig.height = 6, fig.width=6}
 baby_name %>%
-        filter(gender == "MALE" & year_of_birth == 2016 & ethnicity == "White non hisp") %>% 
+        filter(gender == "Male" & year_of_birth == 2016 & ethnicity == "White non hisp") %>% 
         ggplot(aes(x = rank, y = count)) + 
+        geom_point(position = "jitter",alpha = 0.25, size = 1) +
         geom_text(aes(label = childs_first_name),hjust = 0, vjust = 0,size = 3) +
-        geom_point(position = "jitter",alpha = 0.25, size = 1) 
+        labs(title = "Rank and count of male names in white non-hispanic children") +
+        theme(plot.title = element_text(hjust = 0.5))
+         
+         
 
 ```
 
