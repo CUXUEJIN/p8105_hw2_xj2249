@@ -1,7 +1,6 @@
 ---
 title: "p8105_hw2_xj2249"
 author: "jx2249"  
-
 date: "2019/9/24"
 output: github_document
 ---
@@ -10,10 +9,11 @@ output: github_document
 ## Read and clean the Mr. Trash Wheel sheet
 ```{r, message = FALSE}
 library(tidyverse)
+library(kableExtra)
 mr_trash <- 
-        readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+        readxl::read_excel("./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", 
                                sheet = "Mr. Trash Wheel",
-                               range = "A2:N336") %>% 
+                               range = "A2:N406") %>% 
         janitor::clean_names() %>% 
         drop_na(dumpster) %>% 
         mutate(sports_balls = as.integer(sports_balls))
@@ -22,7 +22,7 @@ mr_trash <-
 ## Read and clean precipitation data for 2017 and 2018
 ```{r, message = FALSE}
 pct_18 <- 
-        readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+        readxl::read_excel("./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", 
                              sheet = "2018 Precipitation",
                              range = "A2:B14") %>% 
         janitor::clean_names() %>% 
@@ -30,7 +30,7 @@ pct_18 <-
         mutate(year = "2018")
 
 pct_17 <- 
-        readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+        readxl::read_excel("./data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", 
                              sheet = "2017 Precipitation",
                              range = "A2:B14") %>% 
         janitor::clean_names() %>% 
@@ -46,13 +46,13 @@ pct_17_18 <-
 ```{r, include = FALSE }
 skimr::skim(mr_trash)
 ```
-* In "Mr. Trash Wheel" dataset, there are 285 observations, embodying information on the dumpter number, date of collection, amount of total litter and litter type.
-* It contains information of 285 dumpsters dating from 2014 to 2018. The average litter weight and volume are 3.33 tons/year and 15 cubic yards/year.
+* In "Mr. Trash Wheel" dataset, there are 344 observations, containing information on the dumpter number, date of collection, amount of total litter and litter type.
+* It contains information of 344 dumpsters dating from 2014 to 2019. The average litter weight and volume are 3.26  tons/year and  15.54 cubic yards/year.
 * And the median number of sports balls in a dumpster in 2017 is  `r median(pull(filter(mr_trash,year == 2017),sports_balls))`.
-* In "precipitation(2017-2018)" dataset,  there are `r nrow(pct_17_18)` observations, with 3 variables, showing the total precipitation data for 19 months in 2017 and 2018. 
+
+* In "precipitation(2017-2018)" dataset,  there are `r nrow(pct_17_18)` observations, with 3 variables, showing the total precipitation data for each month in 2017 and 2018. 
 * The total precipitation in 2017 and 2018 are `r sum(pull(filter(pct_17_18,year == 2017),total))`
 and `r sum(pull(filter(pct_17_18,year == 2018),total))` respectively. Besides, the average precipitation in 2017 and 2018 are `r round(mean(pull(filter(pct_17_18,year == 2017),total)), digits=2) ` and `r round(mean(pull(filter(pct_17_18,year == 2018),total)), digits=2)` respectively.
-
 
 # Problem 2
 ## First, clean the data in pols-month.csv
@@ -94,7 +94,7 @@ pol_snp_unemp <- left_join(pol_snp,unemployment,by = c("year", "month"))
 
 * The "pols-month" dataset contains 9 variables concerning whether the president
 was republican or democratic and the number of governors,senators and representatives
-who are democratic or republican from Jan 1974 to June 2015.
+who were democratic or republican from Jan 1974 to June 2015.
  
 * In "snp" dataset, the closing value of the S&P stock index and its associated date are both included. 
 
@@ -104,21 +104,24 @@ who are democratic or republican from Jan 1974 to June 2015.
 skimr::skim(pol_snp_unemp)
 ```
 
-* The resulting dataset has a 822 x 11 dimension, namely 822 obervations and 11 variables. 
-It covers data on some key variables, including "president","gov_dem","rep_dem","rep_gop","sen_dem","sen_gop","close" and "umemployment_%"** from year of **1947** to **2015**. 
+* The resulting dataset has a **822 x 11 dimension**, namely 822 obervations and 11 variables. 
+It covers data on some key variables, including **"president","gov_dem","rep_dem","rep_gop","sen_dem","sen_gop","close" and "umemployment_%"** from year of **1947** to **2015**. 
 
 
 # Problem 3
 ## Load and tidy the data
 ```{r}
-
 baby_name <- 
         read_csv("./data/Popular_Baby_Names.csv") %>% 
         janitor::clean_names() %>% 
         mutate(childs_first_name = str_to_title(childs_first_name),
-               ethnicity = str_to_sentence(recode(ethnicity, "ASIAN AND PACIFIC ISLANDER" = "ASIAN AND PACI",
-                                                                "BLACK NON HISPANIC" = "BLACK NON HISP",
-                                                                        "WHITE NON HISPANIC" = "WHITE NON HISP")),
+               ethnicity = str_to_sentence(
+                       recode(ethnicity, 
+                              "ASIAN AND PACIFIC ISLANDER" = "ASIAN AND PACI",
+                              "BLACK NON HISPANIC" = "BLACK NON HISP",
+                              "WHITE NON HISPANIC" = "WHITE NON HISP"
+                              )
+                                           ),
                gender = str_to_title(gender)
                ) %>% 
         distinct(.keep_all = TRUE) %>% 
@@ -134,7 +137,10 @@ pop_olivia <-
         select("year_of_birth","ethnicity","rank") %>% 
         pivot_wider(names_from = year_of_birth, values_from = rank ) %>% 
         select("ethnicity","2011","2012","2013","2014","2015","2016")
-knitr::kable(pop_olivia) 
+
+kable(pop_olivia, 
+      caption = "Rank in popularity of 'Olivia' as a female baby name over time"
+      )
 ```
 
 
@@ -146,7 +152,8 @@ pop_male_name <-
         select(year_of_birth, ethnicity, childs_first_name) %>% 
         pivot_wider(names_from = year_of_birth, values_from = childs_first_name ) %>% 
         select("ethnicity","2011","2012","2013","2014","2015","2016") 
-knitr::kable(pop_male_name) 
+kable(pop_male_name,
+      caption = "The most popular name among male children over time")
 ```
 
 ## Scatter plot--rank and count of male names in white non-hispanic children
